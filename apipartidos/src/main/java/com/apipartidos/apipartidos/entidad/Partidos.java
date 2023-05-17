@@ -1,9 +1,19 @@
 package com.apipartidos.apipartidos.entidad;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity(name = "partidos")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(indexes = {
         @Index(columnList = "idPartido", name = "index_idpartido", unique = true)
 })
@@ -21,6 +31,10 @@ public class Partidos {
     private String golesLocal;
     private String golesVisitante;
 
+    @CreatedDate
+    private Date creado;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
@@ -33,70 +47,5 @@ public class Partidos {
     @JoinColumn(name = "id_equipoVisitante")
     private Equipo equipoVisitante;
 
-    public Partidos() {
-    }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getIdPartido() {
-        return idPartido;
-    }
-
-    public void setIdPartido(String idPartido) {
-        this.idPartido = idPartido;
-    }
-
-    public Date getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
-
-    public String getGolesLocal() {
-        return golesLocal;
-    }
-
-    public void setGolesLocal(String golesLocal) {
-        this.golesLocal = golesLocal;
-    }
-
-    public String getGolesVisitante() {
-        return golesVisitante;
-    }
-
-    public void setGolesVisitante(String golesVisitante) {
-        this.golesVisitante = golesVisitante;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
-    public Equipo getEquipoLocal() {
-        return equipoLocal;
-    }
-
-    public void setEquipoLocal(Equipo equipoLocal) {
-        this.equipoLocal = equipoLocal;
-    }
-
-    public Equipo getEquipoVisitante() {
-        return equipoVisitante;
-    }
-
-    public void setEquipoVisitante(Equipo equipoVisitante) {
-        this.equipoVisitante = equipoVisitante;
-    }
 }

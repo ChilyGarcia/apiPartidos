@@ -13,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -39,7 +41,73 @@ public class PartidoImplementacion implements PartidoServicio {
         partidoRepositorio.save(partido);
         PartidoDto partidoDtoResponse = mapearDto(partido);
 
-        return  partidoDtoResponse;
+        return partidoDtoResponse;
+    }
+
+    @Override
+    public List<PartidoDto> partidosCreados() {
+
+        List<Partidos> listaPartidos = partidoRepositorio.partidosCreados();
+
+        List<PartidoDto> partidoDtoList = new ArrayList<>();
+
+        for (Partidos partidos : listaPartidos)
+        {
+            PartidoDto partidoDto = modelMapper.map(partidos, PartidoDto.class);
+            partidoDtoList.add(partidoDto);
+
+        }
+
+        return partidoDtoList;
+    }
+
+    @Override
+    public PartidoDto detallePartido(String id) {
+
+        Partidos partidos = partidoRepositorio.findByIdPartido(id);
+
+        PartidoDto partidoDto = modelMapper.map(partidos, PartidoDto.class);
+
+        return partidoDto;
+    }
+
+    @Override
+    public PartidoDto actualizarPartido(String idPartido, PartidoDto partidoDtoActualizar) {
+
+        Partidos partidos = partidoRepositorio.findByIdPartido(idPartido);
+
+        Usuario usuario = usuarioRepositorio.findByUsername(partidoDtoActualizar.getUsername());
+
+
+        if(partidos.getUsuario().getId() != usuario.getId())
+        {
+            throw new RuntimeException("No se puede realizar esta accion");
+        }
+
+        partidos.setGolesLocal(partidoDtoActualizar.getGolesLocal());
+        partidos.setGolesVisitante(partidoDtoActualizar.getGolesVisitante());
+
+        Partidos partidoActualizado = partidoRepositorio.save(partidos);
+
+        PartidoDto partidoDtoActualizado = modelMapper.map(partidoActualizado, PartidoDto.class);
+
+        return partidoDtoActualizado;
+
+
+
+    }
+
+    @Override
+    public void eliminarPartido(String idPartido, long idUsuario) {
+
+        Partidos partido = partidoRepositorio.findByIdPartido(idPartido);
+
+        if(partido.getUsuario().getId() != idUsuario)
+        {
+            throw new RuntimeException("No se puede eliminar este partido");
+        }
+
+        partidoRepositorio.delete(partido);
     }
 
 

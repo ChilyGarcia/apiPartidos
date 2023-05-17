@@ -2,8 +2,11 @@ package com.apipartidos.apipartidos.controladores;
 
 import com.apipartidos.apipartidos.dto.EquipoDto;
 import com.apipartidos.apipartidos.dto.PartidoDto;
+import com.apipartidos.apipartidos.dto.UsuarioDto;
+import com.apipartidos.apipartidos.models.request.PartidoActualizarRequest;
 import com.apipartidos.apipartidos.models.request.PartidoRequest;
 import com.apipartidos.apipartidos.models.response.EquipoResponse;
+import com.apipartidos.apipartidos.models.response.MensajeResponse;
 import com.apipartidos.apipartidos.models.response.PartidoResponse;
 import com.apipartidos.apipartidos.models.response.UsuarioResponse;
 import com.apipartidos.apipartidos.repositorio.EquipoRepositorio;
@@ -16,6 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/partido")
 public class PartidoControlador {
@@ -25,6 +31,9 @@ public class PartidoControlador {
 
     @Autowired
     private PartidoServicio partidoServicio;
+
+    @Autowired
+    private UsuarioServices usuarioServices;
 
     @Autowired
     private UsuarioRepositorio usuarioRepositorio;
@@ -59,6 +68,70 @@ public class PartidoControlador {
         response.setJugado(false);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping(path = "leerPartidos")
+    public List<PartidoResponse> listaPartidos()
+    {
+         List<PartidoDto> partidoDtoList = partidoServicio.partidosCreados();
+
+         List<PartidoResponse> partidoResponseList = new ArrayList<>();
+
+         for(PartidoDto partidoDto : partidoDtoList){
+              PartidoResponse partidoResponse = modelMapper.map(partidoDto, PartidoResponse.class);
+              partidoResponseList.add(partidoResponse);
+         }
+
+         return partidoResponseList;
+    }
+
+    @GetMapping(path = "{id}")
+    public PartidoResponse detallePartido(@PathVariable("id")String id)
+    {
+        PartidoDto partidoDto = partidoServicio.detallePartido(id);
+
+        PartidoResponse partidoResponse = modelMapper.map(partidoDto, PartidoResponse.class);
+
+        return partidoResponse;
+    }
+
+    @PutMapping(path = "{id}/{username}")
+    public PartidoResponse actualizarPartidos(@PathVariable("id") String id,
+                                              @PathVariable("username")String username,
+                                              @RequestBody PartidoActualizarRequest partidoActualizarRequest)
+    {
+
+        PartidoDto partidoActualizarDto = modelMapper.map(partidoActualizarRequest, PartidoDto.class);
+
+        partidoActualizarDto.setUsername(username);
+
+        PartidoDto partidoDto = partidoServicio.actualizarPartido(id, partidoActualizarDto);
+
+        PartidoResponse partidoResponse = modelMapper.map(partidoDto, PartidoResponse.class);
+
+        return partidoResponse;
+
+    }
+
+    @DeleteMapping(path = "{id}/{username}")
+    public MensajeResponse eliminarPartido(@PathVariable("id")String id,
+                                           @PathVariable("username")String username)
+    {
+
+        UsuarioDto usuarioDto = usuarioServices.buscarUsuario(username);
+
+        MensajeResponse mensajeResponse = new MensajeResponse();
+        mensajeResponse.setNombre("Eliminar");
+
+        partidoServicio.eliminarPartido(id, usuarioDto.getId());
+
+        mensajeResponse.setResultado("El partido se elimino con exito");
+
+        return mensajeResponse;
+
+
+
+
     }
 
 
